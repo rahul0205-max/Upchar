@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UPCHAR – Industry Dashboard</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: #f8fcfd;
+        color: #124b73;
+        min-height: 100vh;
+    }
+
+    :root {
+        --blue: #075b91;
+        --dark-blue: #124b73;
+        --teal: #10a9a4;
+        --green: #35c88f;
+        --border: #cfe9f3;
+        --light-blue: #edf8fd;
+    }
+
+    /* ================= HEADER ================= */
+
+    .header {
+        height: 92px;
+        background: white;
+        border-bottom: 1px solid #d9edf3;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 38px;
+        position: relative;
+    }
+
+    .brand {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+    }
+
+    .brand-logo {
+        width: 62px;
+        height: 62px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 39px;
+        font-weight: 800;
+        background: linear-gradient(145deg, #075b91, #20c99a);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .brand-text h1 {
+        font-size: 30px;
+        letter-spacing: 1px;
+        color: #147477;
+        font-weight: 750;
+        line-height: 1;
+    }
+
+    .brand-text p {
+        margin-top: 5px;
+        color: #557ea4;
+        font-size: 15px;
+    }
+
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+        position: relative;
+    }
+
+    .dashboard-name {
+        border-bottom: 2px solid #9bcce9;
+        padding: 8px 0;
+        font-size: 16px;
+        color: #214f79;
+    }
+
+    .bell {
+        font-size: 22px;
+        position: relative;
+        cursor: pointer;
+        color: #124b73;
+    }
+
+    .notification-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #ff4c62;
+        position: absolute;
+        top: 2px;
+        right: 1px;
+    }
+
+    .profile-container {
+        position: relative;
+    }
+
+    .profile {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #dceffb;
+        color: #0871ad;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .profile:hover {
+        background: #c3e5f8;
+    }
+
+    /* PROFILE DROPDOWN MENU */
+    .profile-menu {
+        display: none;
+        position: absolute;
+        top: 60px;
+        right: 0;
+        width: 240px;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        z-index: 100;
+        overflow: hidden;
+    }
+
+    .profile-menu.active {
+        display: block;
+    }
+
+    .menu-header {
+        padding: 14px 16px;
+        border-bottom: 1px solid #e1f0f5;
+        background: #f8fcfd;
+    }
+
+    .menu-header .name {
+        font-weight: 700;
+        color: var(--dark-blue);
+        font-size: 14px;
+    }
+
+    .menu-header .role {
+        font-size: 12px;
+        color: #557ea4;
+    }
+
+    .menu-items {
+        list-style: none;
+        padding: 6px 0;
+    }
+
+    .menu-item {
+        padding: 10px 16px;
+        font-size: 14px;
+        color: #32658f;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .menu-item:hover {
+        background: #edfafa;
+        color: var(--blue);
+    }
+
+    .menu-item i {
+        width: 18px;
+        font-size: 14px;
+    }
+
+    .menu-divider {
+        height: 1px;
+        background: #e1f0f5;
+        margin: 4px 0;
+    }
+
+    .menu-item.logout {
+        color: #e23535;
+    }
+
+    .menu-item.logout:hover {
+        background: #ffe6e6;
+    }
+
+    /* ================= LAYOUT ================= */
+
+    .layout {
+        display: flex;
+        min-height: calc(100vh - 92px);
+    }
+
+    /* ================= SIDEBAR ================= */
+
+    .sidebar {
+        width: 245px;
+        background: white;
+        border-right: 1px solid #d9edf3;
+        padding: 38px 13px;
+    }
+
+    .nav-item {
+        padding: 16px 18px;
+        margin-bottom: 8px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        color: #32658f;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.25s;
+    }
+
+    .nav-item:hover {
+        background: #edfafa;
+    }
+
+    .nav-item.active {
+        background: linear-gradient(90deg, #daf7f2, #edfafa);
+        color: #0b577c;
+        font-weight: 700;
+    }
+
+    .nav-icon {
+        width: 30px;
+        font-size: 18px;
+        text-align: center;
+    }
+
+    /* ================= CONTENT ================= */
+
+    .content {
+        flex: 1;
+        padding: 30px 25px;
+    }
+
+    .page-view {
+        display: none;
+    }
+
+    .page-view.active {
+        display: block;
+    }
+
+    /* ================= HERO / SLIDESHOW ================= */
+
+    .hero {
+        height: 455px;
+        border-radius: 18px;
+        background: linear-gradient(90deg, rgba(221,247,255,.98) 0%, rgba(234,250,255,.92) 45%, rgba(207,245,236,.9) 100%);
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #cdebf3;
+    }
+
+    .hero-content {
+        position: absolute;
+        left: 70px;
+        top: 72px;
+        width: 48%;
+        z-index: 3;
+    }
+
+    .hero-small {
+        font-size: 15px;
+        letter-spacing: 4px;
+        color: #079db1;
+        font-weight: 700;
+        margin-bottom: 25px;
+    }
+
+    .hero h2 {
+        color: #0f4c76;
+        font-size: 42px;
+        line-height: 1.17;
+        margin-bottom: 21px;
+    }
+
+    .hero p {
+        color: #48729a;
+        font-size: 17px;
+        line-height: 1.7;
+        max-width: 550px;
+    }
+
+    .hero-button {
+        display: inline-flex;
+        margin-top: 27px;
+        padding: 13px 25px;
+        color: white;
+        background: linear-gradient(90deg, #09a6a5, #14b8a6);
+        border-radius: 28px;
+        font-weight: 700;
+        font-size: 16px;
+        text-decoration: none;
+        box-shadow: 0 8px 20px rgba(9,166,165,.22);
+        cursor: pointer;
+    }
+
+    .city {
+        position: absolute;
+        right: -20px;
+        bottom: 0;
+        width: 54%;
+        height: 88%;
+        background: linear-gradient(to top, rgba(61,166,139,.35), rgba(174,232,230,.12));
+        clip-path: polygon(15% 46%, 25% 46%, 25% 31%, 34% 31%, 34% 43%, 45% 43%, 45% 24%, 53% 24%, 53% 40%, 62% 40%, 62% 18%, 70% 18%, 70% 35%, 80% 35%, 80% 11%, 88% 11%, 88% 38%, 100% 38%, 100% 100%, 0 100%);
+        opacity: .65;
+    }
+
+    .handshake {
+        position: absolute;
+        right: 17%;
+        bottom: 95px;
+        width: 310px;
+        height: 190px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 86px;
+        color: #0697aa;
+        background: rgba(255,255,255,.35);
+        border-radius: 50%;
+        box-shadow: 0 0 70px rgba(51,187,201,.25);
+    }
+
+    .industry-label, .university-label {
+        position: absolute;
+        bottom: 65px;
+        font-size: 16px;
+        font-weight: 700;
+        color: white;
+        background: rgba(5,83,115,.75);
+        padding: 10px 18px;
+        border-radius: 20px;
+    }
+
+    .industry-label { right: 41%; }
+    .university-label { right: 10%; background: rgba(24,153,113,.82); }
+
+    .slide-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 48px;
+        height: 48px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        color: #0b6798;
+        cursor: pointer;
+        z-index: 5;
+        box-shadow: 0 5px 20px rgba(0,0,0,.08);
+    }
+
+    .slide-left { left: 22px; }
+    .slide-right { right: 22px; }
+
+    .dots {
+        position: absolute;
+        bottom: 26px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
+    }
+
+    .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #bfd5df;
+    }
+
+    .dot.active { background: #10aca3; }
+
+    /* ================= QUERY CARDS ================= */
+
+    .query-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-top: 24px;
+    }
+
+    .query-card {
+        min-height: 235px;
+        border-radius: 16px;
+        padding: 28px 30px;
+        border: 1px solid;
+        position: relative;
+        overflow: hidden;
+        transition: .25s;
+        cursor: pointer;
+    }
+
+    .query-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(0,0,0,.08);
+    }
+
+    .query-card::after {
+        content: "";
+        position: absolute;
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        right: -50px;
+        bottom: -70px;
+        opacity: .35;
+    }
+
+    .unread { background: #fff8f8; border-color: #ffcaca; }
+    .unread::after { background: #ffe0e0; }
+    .pending { background: #fffdf4; border-color: #f5dfa3; }
+    .pending::after { background: #f9e8b7; }
+    .resolved { background: #f4fffb; border-color: #a9e4d5; }
+    .resolved::after { background: #caf4e7; }
+
+    .query-top { display: flex; gap: 18px; align-items: flex-start; }
+
+    .query-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+        flex-shrink: 0;
+    }
+
+    .unread .query-icon { background: #ffe6e6; color: #e23535; }
+    .pending .query-icon { background: #fff0cb; color: #e89c19; }
+    .resolved .query-icon { background: #d9f7ed; color: #11a880; }
+
+    .query-card h3 { font-size: 19px; color: #144f76; margin-top: 6px; line-height: 1.3; }
+    .query-card p { color: #6083a2; margin-top: 9px; line-height: 1.45; font-size: 14px; }
+
+    .query-bottom {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 28px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .query-number { font-size: 42px; font-weight: 750; }
+    .unread .query-number { color: #db3434; }
+    .pending .query-number { color: #df9411; }
+    .resolved .query-number { color: #119d7b; }
+
+    .query-arrow { font-size: 34px; font-weight: 300; }
+    .unread .query-arrow { color: #dc3b3b; }
+    .pending .query-arrow { color: #df9411; }
+    .resolved .query-arrow { color: #119d7b; }
+
+    /* ================= SECTION UI & PANELS ================= */
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .section-title {
+        font-size: 24px;
+        color: var(--dark-blue);
+        font-weight: 700;
+    }
+
+    .filter-tabs {
+        display: flex;
+        gap: 10px;
+    }
+
+    .tab-btn {
+        padding: 8px 16px;
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        background: white;
+        color: var(--dark-blue);
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+    .tab-btn.active {
+        background: var(--teal);
+        color: white;
+        border-color: var(--teal);
+    }
+
+    .panel-card {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 20px;
+        margin-bottom: 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    }
+
+    .progress-bar-bg {
+        width: 100%;
+        height: 10px;
+        background: #eef6f9;
+        border-radius: 5px;
+        overflow: hidden;
+        margin-top: 8px;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background: var(--teal);
+        border-radius: 5px;
+    }
+
+    .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .grid-4 {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+    }
+
+    .stat-box {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 18px;
+        text-align: center;
+    }
+
+    .stat-val {
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--blue);
+    }
+
+    .stat-lbl {
+        font-size: 13px;
+        color: #557ea4;
+        margin-top: 4px;
+    }
+
+    /* ================= MODAL DIALOGS ================= */
+
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(18, 75, 115, 0.4);
+        backdrop-filter: blur(4px);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        padding: 20px;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal-box {
+        background: white;
+        width: 100%;
+        max-width: 680px;
+        max-height: 85vh;
+        border-radius: 18px;
+        border: 1px solid var(--border);
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        overflow-y: auto;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #e1f0f5;
+        padding-bottom: 12px;
+    }
+
+    .modal-header h2 {
+        font-size: 20px;
+        color: var(--dark-blue);
+    }
+
+    .close-btn {
+        background: #eef6f9;
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 16px;
+        color: #557ea4;
+    }
+
+    .modal-item {
+        background: #f4fafc;
+        border: 1px solid #d9edf3;
+        border-radius: 12px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .modal-item-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .user-tag { font-size: 13px; font-weight: 700; color: var(--blue); }
+    .status-badge {
+        font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 12px; text-transform: uppercase;
+    }
+
+    .badge-unread { background: #ffe6e6; color: #db3434; }
+    .badge-pending { background: #fff0cb; color: #df9411; }
+    .badge-resolved { background: #d9f7ed; color: #119d7b; }
+
+    .item-title { font-size: 15px; font-weight: 700; color: #144f76; }
+    .item-desc { font-size: 13px; color: #48729a; line-height: 1.5; }
+
+    .replies-list {
+        background: white;
+        border: 1px solid #e1f0f5;
+        border-radius: 8px;
+        padding: 10px;
+        margin-top: 6px;
+        font-size: 12px;
+    }
+
+    .reply-entry { margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid #f0f7fa; }
+    .reply-entry:last-child { margin-bottom: 0; border-bottom: none; }
+    .reply-author { font-weight: 700; color: var(--teal); }
+
+    .item-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 6px;
+        flex-wrap: wrap;
+    }
+
+    .btn-act {
+        padding: 8px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: white;
+        color: var(--dark-blue);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .btn-act.primary {
+        background: var(--teal);
+        color: white;
+        border: none;
+    }
+
+    .reply-input-box {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+    }
+
+    .reply-input-box input {
+        flex: 1;
+        padding: 8px 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        font-size: 13px;
+        outline: none;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 12px;
+    }
+
+    .form-group label {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--dark-blue);
+    }
+
+    .form-group input, .form-group select, .form-group textarea {
+        padding: 10px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 14px;
+        width: 100%;
+    }
+
+    /* ================= RESPONSIVE ================= */
+
+    @media(max-width: 1100px) {
+        .sidebar { width: 190px; }
+        .hero h2 { font-size: 34px; }
+        .hero-content { left: 45px; }
+        .query-grid { grid-template-columns: 1fr; }
+        .grid-2 { grid-template-columns: 1fr; }
+        .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media(max-width: 800px) {
+        .header { padding: 0 15px; }
+        .dashboard-name { display: none; }
+        .sidebar { display: none; }
+        .content { padding: 15px; }
+        .hero { height: 500px; }
+        .hero-content { left: 30px; top: 40px; width: 80%; }
+        .hero h2 { font-size: 31px; }
+        .handshake { right: 8%; bottom: 50px; width: 220px; height: 130px; font-size: 60px; }
+        .industry-label, .university-label { bottom: 25px; font-size: 12px; }
+        .industry-label { right: 36%; }
+    }
+</style>
+</head>
+
+<body>
+
+<!-- ================= HEADER ================= -->
+
+<header class="header">
+    <div class="brand">
+        <div class="brand-logo">✚</div>
+        <div class="brand-text">
+            <h1>UPCHAR</h1>
+            <p>Making support feel effortless</p>
+        </div>
+    </div>
+
+    <div class="header-right">
+        <div class="dashboard-name">Industry Partner Dashboard</div>
+        <div class="bell" onclick="openNotificationsModal()">
+            <i class="fa-regular fa-bell"></i>
+            <span class="notification-dot"></span>
+        </div>
+        
+        <!-- PROFILE MENU CONTAINER -->
+        <div class="profile-container">
+            <div class="profile" onclick="toggleProfileMenu()" title="Profile & Options">
+                <i class="fa-solid fa-user-tie"></i>
+            </div>
+
+            <!-- DROPDOWN MENU -->
+            <div class="profile-menu" id="profileMenu">
+                <div class="menu-header">
+                    <div class="name" id="menuPartnerName">Apex Solutions Ltd.</div>
+                    <div class="role">Industry Partner ID: #IND-902</div>
+                </div>
+                <ul class="menu-items">
+                    <li class="menu-item" onclick="openProfileModal()">
+                        <i class="fa-solid fa-id-card"></i> View Profile
+                    </li>
+                    <li class="menu-item" onclick="openPreferencesModal()">
+                        <i class="fa-solid fa-sliders"></i> Preferences
+                    </li>
+                    <li class="menu-item" onclick="openActivityLog()">
+                        <i class="fa-solid fa-clock-rotate-left"></i> Activity Log
+                    </li>
+                    <div class="menu-divider"></div>
+                    <li class="menu-item logout" onclick="performLogout()">
+                        <i class="fa-solid fa-right-from-bracket"></i> Log Out
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="layout">
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+        <div class="nav-item active" id="nav-dashboard" onclick="navigateTo('dashboard-view', this)">
+            <div class="nav-icon"><i class="fa-solid fa-house"></i></div>
+            Dashboard
+        </div>
+        <div class="nav-item" id="nav-queries" onclick="navigateTo('queries-view', this)">
+            <div class="nav-icon"><i class="fa-solid fa-circle-exclamation"></i></div>
+            Queries
+        </div>
+        <div class="nav-item" id="nav-projects" onclick="navigateTo('projects-view', this)">
+            <div class="nav-icon"><i class="fa-solid fa-diagram-project"></i></div>
+            Projects
+        </div>
+        <div class="nav-item" id="nav-collaboration" onclick="navigateTo('collaboration-view', this)">
+            <div class="nav-icon"><i class="fa-solid fa-handshake"></i></div>
+            Collaboration
+        </div>
+        <div class="nav-item" id="nav-reports" onclick="navigateTo('reports-view', this)">
+            <div class="nav-icon"><i class="fa-solid fa-chart-line"></i></div>
+            Reports
+        </div>
+        <div class="nav-item" id="nav-settings" onclick="navigateTo('settings-view', this)">
+            <div class="nav-icon"><i class="fa-solid fa-gear"></i></div>
+            Settings
+        </div>
+    </aside>
+
+    <!-- ================= MAIN CONTENT VIEWS ================= -->
+
+    <main class="content">
+
+        <!-- 1. DASHBOARD VIEW -->
+        <div id="dashboard-view" class="page-view active">
+            <!-- HERO SLIDESHOW -->
+            <section class="hero">
+                <div class="hero-content">
+                    <div class="hero-small">REAL PROBLEMS. REAL COLLABORATION.</div>
+                    <h2 id="heroTitle">Turning Community Issues into Real Solutions</h2>
+                    <p id="heroText">Work together with universities, industry partners and citizens to solve real-world problems, build better communities and create lasting impact.</p>
+                    <a class="hero-button" onclick="navigateTo('queries-view', document.getElementById('nav-queries'))">Explore Queries →</a>
+                </div>
+
+                <div class="city"></div>
+                <div class="handshake">🤝</div>
+                <div class="industry-label">🏢 INDUSTRY</div>
+                <div class="university-label">🎓 UNIVERSITY</div>
+
+                <div class="slide-arrow slide-left" onclick="previousSlide()">‹</div>
+                <div class="slide-arrow slide-right" onclick="nextSlide()">›</div>
+
+                <div class="dots">
+                    <div class="dot active"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            </section>
+
+            <!-- QUERY STATUS CARDS -->
+            <section class="query-grid">
+                <div class="query-card unread" onclick="openQueriesModalFilter('unread')">
+                    <div class="query-top">
+                        <div class="query-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <div>
+                            <h3>Unread / Unaddressed Queries</h3>
+                            <p>New queries waiting for your attention.</p>
+                        </div>
+                    </div>
+                    <div class="query-bottom">
+                        <div class="query-number" id="num-unread">12</div>
+                        <div class="query-arrow">→</div>
+                    </div>
+                </div>
+
+                <div class="query-card pending" onclick="openQueriesModalFilter('pending')">
+                    <div class="query-top">
+                        <div class="query-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                        <div>
+                            <h3>Pending / In Process</h3>
+                            <p>Queries under review or in progress.</p>
+                        </div>
+                    </div>
+                    <div class="query-bottom">
+                        <div class="query-number" id="num-pending">28</div>
+                        <div class="query-arrow">→</div>
+                    </div>
+                </div>
+
+                <div class="query-card resolved" onclick="openQueriesModalFilter('resolved')">
+                    <div class="query-top">
+                        <div class="query-icon"><i class="fa-solid fa-circle-check"></i></div>
+                        <div>
+                            <h3>Resolved Queries</h3>
+                            <p>Successfully addressed and closed.</p>
+                        </div>
+                    </div>
+                    <div class="query-bottom">
+                        <div class="query-number" id="num-resolved">46</div>
+                        <div class="query-arrow">→</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 2. QUERIES VIEW -->
+        <div id="queries-view" class="page-view">
+            <div class="section-header">
+                <div class="section-title">Query Operations Center</div>
+                <div class="filter-tabs">
+                    <button class="tab-btn active" onclick="filterQueriesView('ALL', this)">All</button>
+                    <button class="tab-btn" onclick="filterQueriesView('unread', this)">Unread</button>
+                    <button class="tab-btn" onclick="filterQueriesView('pending', this)">Pending</button>
+                    <button class="tab-btn" onclick="filterQueriesView('resolved', this)">Resolved</button>
+                </div>
+            </div>
+            <div id="queries-list-container" style="display: flex; flex-direction: column; gap: 14px;">
+                <!-- Populated via renderQueriesView() -->
+            </div>
+        </div>
+
+        <!-- 3. PROJECTS VIEW -->
+        <div id="projects-view" class="page-view">
+            <div class="section-header">
+                <div class="section-title">Active Infrastructure Projects</div>
+                <button class="btn-act primary" onclick="openNewProjectModal()">+ Create New Project</button>
+            </div>
+            <div id="projects-list-container">
+                <!-- Populated via renderProjectsView() -->
+            </div>
+        </div>
+
+        <!-- 4. COLLABORATION VIEW -->
+        <div id="collaboration-view" class="page-view">
+            <div class="section-header">
+                <div class="section-title">University & Community Collaboration</div>
+            </div>
+            <div id="collaboration-list-container" class="grid-2">
+                <!-- Populated via renderCollaborationView() -->
+            </div>
+        </div>
+
+        <!-- 5. REPORTS VIEW -->
+        <div id="reports-view" class="page-view">
+            <div class="section-header">
+                <div class="section-title">Performance & Analytics Summary</div>
+                <button class="btn-act primary" onclick="exportReportCSV()"><i class="fa-solid fa-download"></i> Export Data (CSV)</button>
+            </div>
+            <div class="grid-4" style="margin-bottom: 24px;">
+                <div class="stat-box">
+                    <div class="stat-val" id="stat-total">86</div>
+                    <div class="stat-lbl">Total Submissions</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val" style="color: #11a880;" id="stat-rate">88%</div>
+                    <div class="stat-lbl">Resolution Rate</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val" style="color: #079db1;">4.2h</div>
+                    <div class="stat-lbl">Avg Response Time</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val" style="color: #e89c19;">94%</div>
+                    <div class="stat-lbl">Community Satisfaction</div>
+                </div>
+            </div>
+            <div class="panel-card">
+                <h3>Resolution Breakdown by Sector</h3>
+                <p style="font-size: 13px; color: #557ea4; margin-bottom: 15px;">Monthly distribution of addressed civic issues.</p>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div>
+                        <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:600;">
+                            <span>Water Supply & Pipeline Repairs</span><span>78% Closed</span>
+                        </div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 78%;"></div></div>
+                    </div>
+                    <div>
+                        <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:600;">
+                            <span>Electricity Grid & Power Issues</span><span>92% Closed</span>
+                        </div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 92%; background: #35c88f;"></div></div>
+                    </div>
+                    <div>
+                        <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:600;">
+                            <span>Sanitation & Municipal Clearance</span><span>64% Closed</span>
+                        </div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 64%; background: #e89c19;"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. SETTINGS VIEW -->
+        <div id="settings-view" class="page-view">
+            <div class="section-header">
+                <div class="section-title">System Settings & Controls</div>
+            </div>
+            <div class="panel-card" style="max-width: 600px;">
+                <h3 style="margin-bottom: 16px; color: var(--dark-blue);">Notification Preferences</h3>
+                <div class="form-group">
+                    <label>Email Alert Frequency</label>
+                    <select id="pref-email-freq">
+                        <option value="instant">Instant Real-time Alerts</option>
+                        <option value="daily">Daily Summary Digest</option>
+                        <option value="off">Turn Off Email Alerts</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Query Auto-Assignment</label>
+                    <select id="pref-auto-assign">
+                        <option value="sector">Auto-route by Ward & Sector</option>
+                        <option value="manual">Manual Assignment Only</option>
+                    </select>
+                </div>
+                <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
+                <h3 style="margin-bottom: 16px; color: var(--dark-blue);">Security & Integration</h3>
+                <div class="form-group">
+                    <label>API Key for System Webhooks</label>
+                    <input type="text" value="upchar_live_sec_key_99381203" readonly style="background:#f4fafc; color:#557ea4;">
+                </div>
+                <button class="btn-act primary" style="padding: 12px 20px;" onclick="saveSystemSettings()">Save System Settings</button>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- ================= DYNAMIC MODAL ================= -->
+<div class="modal-overlay" id="queryModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2 id="modalTitle">Customer Queries</h2>
+            <button class="close-btn" onclick="closeModal()">✕</button>
+        </div>
+        <div id="modalContent" style="display: flex; flex-direction: column; gap: 12px;">
+            <!-- Rendered dynamically -->
+        </div>
+    </div>
+</div>
+
+<script>
+    /* ================= DATA STORE ================= */
+    let databaseQueries = [
+        {
+            id: "Q-201",
+            user: "Ananya Roy (Kankarbagh)",
+            title: "Water contamination in Block C line",
+            desc: "Drinking water smells foul and turned yellowish since this morning.",
+            status: "unread",
+            replies: []
+        },
+        {
+            id: "Q-202",
+            user: "Vikram Singh (Boring Road)",
+            title: "Transformer sparking continuously",
+            desc: "Street line voltage fluctuating drastically near school area.",
+            status: "unread",
+            replies: []
+        },
+        {
+            id: "Q-203",
+            user: "Sanjay Gupta (Rajendra Nagar)",
+            title: "Uncollected street garbage accumulation",
+            desc: "Municipal trash containers overflowing for 3 consecutive days.",
+            status: "pending",
+            replies: [{ author: "Industry Agent", text: "Pickup team scheduled for 3 PM inspection." }]
+        },
+        {
+            id: "Q-204",
+            user: "Meera Patel (Patliputra)",
+            title: "Drainage block during rain",
+            desc: "Rainwater accumulated up to knee height near main market road.",
+            status: "resolved",
+            replies: [{ author: "Industry Support", text: "Drainage cleared and pump operational." }]
+        }
+    ];
+
+    let projectsDatabase = [
+        { id: "PRJ-101", title: "Patna Smart Drainage Automation", status: "In Progress", progress: 65, leader: "NIT Patna Research Dept.", sector: "Public Works" },
+        { id: "PRJ-102", title: "Grid Substation Modernization", status: "Planning", progress: 20, leader: "Apex Power Infra", sector: "Electricity Grid" },
+        { id: "PRJ-103", title: "Clean Water Filter Installation", status: "Completed", progress: 100, leader: "Urban Water Board", sector: "Sanitation" }
+    ];
+
+    let collaborationDatabase = [
+        { title: "IIT Patna - Urban AI Innovation Cell", scope: "Predictive maintenance for city water distribution networks.", partners: "Apex Solutions & IIT Patna" },
+        { title: "Municipal Solid Waste Management Drive", scope: "Deploying automated IoT sensor containers across 12 civic blocks.", partners: "Patna Municipal Corp." }
+    ];
+
+    let activityLogs = [
+        "Replied to Query #Q-203",
+        "Moved Query #Q-204 to Resolved",
+        "Updated Project PRJ-101 progress to 65%",
+        "Logged into Industry Partner Portal"
+    ];
+
+    let partnerProfile = {
+        name: "Apex Solutions Ltd.",
+        email: "support@apexsolutions.org",
+        sector: "Infrastructure & Public Utilities"
+    };
+
+    /* ================= INITIALIZATION ================= */
+    function updateCounters() {
+        let unreadCount = databaseQueries.filter(q => q.status === 'unread').length;
+        let pendingCount = databaseQueries.filter(q => q.status === 'pending').length;
+        let resolvedCount = databaseQueries.filter(q => q.status === 'resolved').length;
+
+        document.getElementById('num-unread').textContent = unreadCount;
+        document.getElementById('num-pending').textContent = pendingCount;
+        document.getElementById('num-resolved').textContent = resolvedCount;
+
+        let total = databaseQueries.length;
+        let rate = total > 0 ? Math.round((resolvedCount / total) * 100) : 0;
+        if(document.getElementById('stat-total')) document.getElementById('stat-total').textContent = total;
+        if(document.getElementById('stat-rate')) document.getElementById('stat-rate').textContent = rate + '%';
+    }
+
+    updateCounters();
+
+    /* ================= NAVIGATION SYSTEM ================= */
+    function navigateTo(viewId, element) {
+        document.querySelectorAll('.page-view').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+        document.getElementById(viewId).classList.add('active');
+        if (element) element.classList.add('active');
+
+        if (viewId === 'queries-view') renderQueriesView('ALL');
+        if (viewId === 'projects-view') renderProjectsView();
+        if (viewId === 'collaboration-view') renderCollaborationView();
+    }
+
+    /* ================= PROFILE MENU ACTIONS ================= */
+    function toggleProfileMenu() {
+        const menu = document.getElementById('profileMenu');
+        menu.classList.toggle('active');
+    }
+
+    document.addEventListener('click', function(event) {
+        const container = document.querySelector('.profile-container');
+        if (container && !container.contains(event.target)) {
+            document.getElementById('profileMenu').classList.remove('active');
+        }
+    });
+
+    function openProfileModal() {
+        document.getElementById('profileMenu').classList.remove('active');
+        const modal = document.getElementById('queryModal');
+        const container = document.getElementById('modalContent');
+        const title = document.getElementById('modalTitle');
+
+        title.textContent = 'Industry Partner Profile';
+        container.innerHTML = `
+            <div class="form-group">
+                <label>Organization / Partner Name</label>
+                <input type="text" id="profName" value="${partnerProfile.name}">
+            </div>
+            <div class="form-group">
+                <label>Official Email</label>
+                <input type="email" id="profEmail" value="${partnerProfile.email}">
+            </div>
+            <div class="form-group">
+                <label>Industry Sector</label>
+                <input type="text" id="profSector" value="${partnerProfile.sector}">
+            </div>
+            <button class="btn-act primary" style="padding:12px;" onclick="saveProfileDetails()">Save Profile Changes</button>
+        `;
+        modal.classList.add('active');
+    }
+
+    function saveProfileDetails() {
+        partnerProfile.name = document.getElementById('profName').value;
+        partnerProfile.email = document.getElementById('profEmail').value;
+        partnerProfile.sector = document.getElementById('profSector').value;
+
+        document.getElementById('menuPartnerName').textContent = partnerProfile.name;
+        activityLogs.unshift("Updated organization profile details.");
+        alert('Profile information updated successfully!');
+        closeModal();
+    }
+
+    function openPreferencesModal() {
+        document.getElementById('profileMenu').classList.remove('active');
+        navigateTo('settings-view', document.getElementById('nav-settings'));
+    }
+
+    function openActivityLog() {
+        document.getElementById('profileMenu').classList.remove('active');
+        const modal = document.getElementById('queryModal');
+        const container = document.getElementById('modalContent');
+        const title = document.getElementById('modalTitle');
+
+        title.textContent = 'Recent Activity Log';
+        container.innerHTML = `
+            <div style="font-size: 13px; display: flex; flex-direction: column; gap: 10px;">
+                ${activityLogs.map(log => `<div style="padding:8px; background:#f4fafc; border-radius:6px; border:1px solid #d9edf3;"><b>&bull;</b> ${log}</div>`).join('')}
+            </div>
+        `;
+        modal.classList.add('active');
+    }
+
+    function openNotificationsModal() {
+        const modal = document.getElementById('queryModal');
+        const container = document.getElementById('modalContent');
+        const title = document.getElementById('modalTitle');
+
+        title.textContent = 'System Notifications';
+        container.innerHTML = `
+            <div style="font-size: 13px; display: flex; flex-direction: column; gap: 10px;">
+                <div style="padding:10px; background:#ffe6e6; color:#db3434; border-radius:8px;"><b>High Priority:</b> Transformer Sparking query (#Q-202) requires urgent attention.</div>
+                <div style="padding:10px; background:#fff0cb; color:#df9411; border-radius:8px;"><b>Reminder:</b> Project #PRJ-101 milestone review due today.</div>
+            </div>
+        `;
+        modal.classList.add('active');
+    }
+
+    function performLogout() {
+        if (confirm('Are you sure you want to log out of the Industry Dashboard?')) {
+            alert('Logging out...');
+            window.location.reload();
+        }
+    }
+
+    /* ================= SLIDESHOW ================= */
+    const slides = [
+        {
+            title: "Turning Community Issues into Real Solutions",
+            text: "Work together with universities, industry partners and citizens to solve real-world problems, build better communities and create lasting impact."
+        },
+        {
+            title: "Connect Industry with Real-World Problems",
+            text: "Discover meaningful community problems and collaborate with universities and experts to develop practical solutions."
+        },
+        {
+            title: "From Query to Impact",
+            text: "Track problems, collaborate with innovators and turn community challenges into measurable solutions."
+        }
+    ];
+
+    let currentSlide = 0;
+
+    function showSlide(index) {
+        currentSlide = index;
+        document.getElementById("heroTitle").textContent = slides[index].title;
+        document.getElementById("heroText").textContent = slides[index].text;
+        const dots = document.querySelectorAll(".dot");
+        dots.forEach((dot, i) => dot.classList.toggle("active", i === index));
+    }
+
+    function nextSlide() {
+        currentSlide = (currentSlide + 1) % slides.length;
+        showSlide(currentSlide);
+    }
+
+    function previousSlide() {
+        currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+        showSlide(currentSlide);
+    }
+
+    setInterval(nextSlide, 6000);
+
+    /* ================= QUERIES VIEW & ACTIONS ================= */
+    let currentFilterState = 'ALL';
+
+    function filterQueriesView(filterType, btn) {
+        document.querySelectorAll('.filter-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        currentFilterState = filterType;
+        renderQueriesView(filterType);
+    }
+
+    function renderQueriesView(filterType) {
+        const container = document.getElementById('queries-list-container');
+        if (!container) return;
+        container.innerHTML = '';
+
+        const list = filterType === 'ALL' ? databaseQueries : databaseQueries.filter(q => q.status === filterType);
+
+        if (list.length === 0) {
+            container.innerHTML = '<div class="panel-card" style="text-align:center; color:#557ea4;">No queries found in this category.</div>';
+            return;
+        }
+
+        list.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'modal-item';
+
+            let badgeCss = 'badge-unread';
+            if (item.status === 'pending') badgeCss = 'badge-pending';
+            if (item.status === 'resolved') badgeCss = 'badge-resolved';
+
+            let repliesContent = '';
+            if (item.replies.length > 0) {
+                repliesContent = `<div class="replies-list">` + 
+                    item.replies.map(r => `<div class="reply-entry"><span class="reply-author">${r.author}:</span> ${r.text}</div>`).join('') +
+                    `</div>`;
+            }
+
+            card.innerHTML = `
+                <div class="modal-item-head">
+                    <span class="user-tag">${item.user} &bull; ${item.id}</span>
+                    <span class="status-badge ${badgeCss}">${item.status}</span>
+                </div>
+                <div class="item-title">${item.title}</div>
+                <div class="item-desc">${item.desc}</div>
+                ${repliesContent}
+                
+                <div class="reply-input-box">
+                    <input type="text" id="reply-view-${item.id}" placeholder="Type an official response...">
+                    <button class="btn-act primary" onclick="sendReplyInline('${item.id}')">Reply</button>
+                </div>
+
+                <div class="item-actions">
+                    ${item.status !== 'pending' && item.status !== 'resolved' ? `<button class="btn-act" onclick="changeStatusInline('${item.id}', 'pending')">Mark In Progress</button>` : ''}
+                    ${item.status !== 'resolved' ? `<button class="btn-act primary" onclick="changeStatusInline('${item.id}', 'resolved')">Mark Resolved</button>` : `<button class="btn-act" onclick="changeStatusInline('${item.id}', 'unread')">Reopen</button>`}
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function openQueriesModalFilter(filterType) {
+        openQueries(filterType);
+    }
+
+    function openQueries(filterType) {
+        const modal = document.getElementById('queryModal');
+        const container = document.getElementById('modalContent');
+        const title = document.getElementById('modalTitle');
+
+        title.textContent = filterType === 'ALL' ? 'All Active Queries' : `${filterType.toUpperCase()} Queries`;
+        container.innerHTML = '';
+
+        const list = filterType === 'ALL' ? databaseQueries : databaseQueries.filter(q => q.status === filterType);
+
+        if (list.length === 0) {
+            container.innerHTML = '<div style="text-align: center; padding: 20px; color: #557ea4;">No queries found in this status.</div>';
+        } else {
+            list.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'modal-item';
+
+                let badgeCss = 'badge-unread';
+                if (item.status === 'pending') badgeCss = 'badge-pending';
+                if (item.status === 'resolved') badgeCss = 'badge-resolved';
+
+                let repliesContent = '';
+                if (item.replies.length > 0) {
+                    repliesContent = `<div class="replies-list">` + 
+                        item.replies.map(r => `<div class="reply-entry"><span class="reply-author">${r.author}:</span> ${r.text}</div>`).join('') +
+                        `</div>`;
+                }
+
+                card.innerHTML = `
+                    <div class="modal-item-head">
+                        <span class="user-tag">${item.user} &bull; ${item.id}</span>
+                        <span class="status-badge ${badgeCss}">${item.status}</span>
+                    </div>
+                    <div class="item-title">${item.title}</div>
+                    <div class="item-desc">${item.desc}</div>
+                    ${repliesContent}
+                    
+                    <div class="reply-input-box">
+                        <input type="text" id="reply-in-${item.id}" placeholder="Type an official response...">
+                        <button class="btn-act primary" onclick="sendReply('${item.id}', '${filterType}')">Reply</button>
+                    </div>
+
+                    <div class="item-actions">
+                        ${item.status !== 'pending' && item.status !== 'resolved' ? `<button class="btn-act" onclick="changeStatus('${item.id}', 'pending', '${filterType}')">Mark In Progress</button>` : ''}
+                        ${item.status !== 'resolved' ? `<button class="btn-act primary" onclick="changeStatus('${item.id}', 'resolved', '${filterType}')">Mark Resolved</button>` : `<button class="btn-act" onclick="changeStatus('${item.id}', 'unread', '${filterType}')">Reopen</button>`}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        modal.classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('queryModal').classList.remove('active');
+    }
+
+    function changeStatus(id, newStatus, currentFilter) {
+        const item = databaseQueries.find(q => q.id === id);
+        if (item) {
+            item.status = newStatus;
+            activityLogs.unshift(`Changed status of ${id} to ${newStatus}.`);
+            updateCounters();
+            openQueries(currentFilter);
+        }
+    }
+
+    function sendReply(id, currentFilter) {
+        const input = document.getElementById(`reply-in-${id}`);
+        if (!input || !input.value.trim()) return;
+
+        const item = databaseQueries.find(q => q.id === id);
+        if (item) {
+            item.replies.push({ author: "Industry Team", text: input.value.trim() });
+            if (item.status === 'unread') item.status = 'pending';
+            activityLogs.unshift(`Replied to ${id}`);
+            updateCounters();
+            openQueries(currentFilter);
+        }
+    }
+
+    function changeStatusInline(id, newStatus) {
+        const item = databaseQueries.find(q => q.id === id);
+        if (item) {
+            item.status = newStatus;
+            activityLogs.unshift(`Changed status of ${id} to ${newStatus}.`);
+            updateCounters();
+            renderQueriesView(currentFilterState);
+        }
+    }
+
+    function sendReplyInline(id) {
+        const input = document.getElementById(`reply-view-${id}`);
+        if (!input || !input.value.trim()) return;
+
+        const item = databaseQueries.find(q => q.id === id);
+        if (item) {
+            item.replies.push({ author: "Industry Team", text: input.value.trim() });
+            if (item.status === 'unread') item.status = 'pending';
+            activityLogs.unshift(`Replied to ${id}`);
+            updateCounters();
+            renderQueriesView(currentFilterState);
+        }
+    }
+
+    /* ================= PROJECTS VIEW ACTIONS ================= */
+    function renderProjectsView() {
+        const container = document.getElementById('projects-list-container');
+        container.innerHTML = '';
+
+        projectsDatabase.forEach(prj => {
+            const card = document.createElement('div');
+            card.className = 'panel-card';
+            card.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3 style="color:var(--dark-blue);">${prj.title} (${prj.id})</h3>
+                    <span class="status-badge badge-pending">${prj.status}</span>
+                </div>
+                <p style="font-size:13px; color:#557ea4; margin-top:4px;">Lead Team: ${prj.leader} &bull; Sector: ${prj.sector}</p>
+                <div style="margin-top:12px;">
+                    <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600;">
+                        <span>Completion Progress</span><span>${prj.progress}%</span>
+                    </div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${prj.progress}%;"></div></div>
+                </div>
+                <div style="display:flex; gap:8px; margin-top:14px;">
+                    <button class="btn-act" onclick="updateProjectProgress('${prj.id}')">Update Milestone</button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function openNewProjectModal() {
+        const modal = document.getElementById('queryModal');
+        const container = document.getElementById('modalContent');
+        const title = document.getElementById('modalTitle');
+
+        title.textContent = 'Create New Infrastructure Project';
+        container.innerHTML = `
+            <div class="form-group">
+                <label>Project Title</label>
+                <input type="text" id="newPrjTitle" placeholder="e.g. Smart Grid Expansion Phase 2">
+            </div>
+            <div class="form-group">
+                <label>Lead Partner / Dept</label>
+                <input type="text" id="newPrjLead" placeholder="e.g. Bihar Urban Dev Department">
+            </div>
+            <div class="form-group">
+                <label>Sector</label>
+                <input type="text" id="newPrjSector" placeholder="e.g. Power Grid">
+            </div>
+            <button class="btn-act primary" style="padding:12px;" onclick="saveNewProject()">Launch Project</button>
+        `;
+        modal.classList.add('active');
+    }
+
+    function saveNewProject() {
+        const title = document.getElementById('newPrjTitle').value;
+        const leader = document.getElementById('newPrjLead').value;
+        const sector = document.getElementById('newPrjSector').value;
+
+        if(!title) return;
+
+        let newId = `PRJ-${100 + projectsDatabase.length + 1}`;
+        projectsDatabase.push({ id: newId, title: title, status: "In Progress", progress: 10, leader: leader || "Apex Team", sector: sector || "General" });
+        activityLogs.unshift(`Created new project ${newId}`);
+        closeModal();
+        renderProjectsView();
+    }
+
+    function updateProjectProgress(prjId) {
+        const prj = projectsDatabase.find(p => p.id === prjId);
+        if (prj) {
+            let nextVal = prompt(`Enter new progress percentage for ${prj.title} (0-100):`, prj.progress);
+            if (nextVal !== null && !isNaN(nextVal)) {
+                prj.progress = Math.min(100, Math.max(0, parseInt(nextVal)));
+                if (prj.progress === 100) prj.status = "Completed";
+                activityLogs.unshift(`Updated progress for ${prjId} to ${prj.progress}%`);
+                renderProjectsView();
+            }
+        }
+    }
+
+    /* ================= COLLABORATION VIEW ACTIONS ================= */
+    function renderCollaborationView() {
+        const container = document.getElementById('collaboration-list-container');
+        container.innerHTML = '';
+
+        collaborationDatabase.forEach(collab => {
+            const card = document.createElement('div');
+            card.className = 'panel-card';
+            card.innerHTML = `
+                <h3 style="color:var(--dark-blue);">${collab.title}</h3>
+                <p style="font-size:13px; color:#48729a; margin-top:8px;">${collab.scope}</p>
+                <p style="font-size:12px; font-weight:700; color:var(--teal); margin-top:12px;">Stakeholders: ${collab.partners}</p>
+                <button class="btn-act primary" style="margin-top:12px;" onclick="alert('Message sent to research group lead.')">Contact Alliance Lead</button>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    /* ================= REPORTS & SETTINGS ACTIONS ================= */
+    function exportReportCSV() {
+        let csvContent = "data:text/csv;charset=utf-8,ID,User,Title,Status\n" + 
+            databaseQueries.map(q => `${q.id},"${q.user}","${q.title}",${q.status}`).join("\n");
+        let encodedUri = encodeURI(csvContent);
+        let link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "UPCHAR_Queries_Report.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function saveSystemSettings() {
+        activityLogs.unshift("Updated system notification preferences.");
+        alert("System settings saved successfully!");
+    }
+</script>
+
+</body>
+</html>

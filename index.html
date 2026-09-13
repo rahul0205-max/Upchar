@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UPCHAR - App</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  
+  <!-- Firebase Compatibility SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f4f8fb;
+      color: #2b3940;
+      display: flex;
+      justify-content: center;
+      padding: 10px 0 20px 0;
+      overflow-x: hidden;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      background-color: #ffffff;
+      padding: 20px 16px 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      min-height: 90vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .screen {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    /* Swipe Animations */
+    .swipe-out-left {
+      animation: swipeLeftOut 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .swipe-in-right {
+      animation: swipeRightIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes swipeLeftOut {
+      0% { transform: translateX(0); opacity: 1; }
+      100% { transform: translateX(-100%); opacity: 0; }
+    }
+
+    @keyframes swipeRightIn {
+      0% { transform: translateX(100%); opacity: 0; }
+      100% { transform: translateX(0); opacity: 1; }
+    }
+
+    button, .card-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    button:active, .card-btn:active {
+      opacity: 0.8;
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      width: 100%;
+      background-color: #0d8a8a;
+      color: #ffffff;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+
+    .btn-primary:hover {
+      background-color: #0b7070;
+    }
+
+    /* Brand Header */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo-svg {
+      width: 38px;
+      height: 38px;
+    }
+
+    .brand-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #0d8a8a;
+      letter-spacing: 0.5px;
+      line-height: 1;
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      color: #687e8d;
+      margin-top: 3px;
+    }
+
+    .login-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin: 20px 0 10px 0;
+    }
+
+    .login-header .brand-logo-svg {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 8px;
+    }
+
+    .login-box {
+      background: linear-gradient(135deg, #e7f7f9 0%, #d8f3ee 100%);
+      border-radius: 16px;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #128282;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input-wrapper {
+      display: flex;
+      align-items: center;
+      background-color: #ffffff;
+      border: 1px solid #c8e0e2;
+      border-radius: 10px;
+      padding: 0 12px;
+    }
+
+    .input-wrapper i {
+      color: #0d8a8a;
+      margin-right: 10px;
+    }
+
+    .input-wrapper input, .input-wrapper select, .input-wrapper textarea {
+      width: 100%;
+      padding: 12px 0;
+      border: none;
+      outline: none;
+      font-size: 14px;
+      color: #153940;
+      background: transparent;
+    }
+
+    .signup-text-wrapper {
+      text-align: center;
+      font-size: 13px;
+      color: #4a6369;
+      margin-top: 4px;
+    }
+
+    .signup-link {
+      color: #0d8a8a;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    /* Modal / Pop-up Window Styling */
+    .modal-overlay {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(4px);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 16px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background-color: #ffffff;
+      width: 100%;
+      max-width: 420px;
+      max-height: 85vh;
+      overflow-y: auto;
+      border-radius: 20px;
+      padding: 22px 18px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: relative;
+      animation: modalSlideUp 0.25s ease-out;
+    }
+
+    @keyframes modalSlideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #f0f4f8;
+      padding-bottom: 10px;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0b7070;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-close-modal {
+      font-size: 18px;
+      color: #687e8d;
+      padding: 4px 8px;
+    }
+
+    /* Interactive List Items in Modals */
+    .modal-item-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .modal-item-card:hover {
+      background: #eef7fc;
+      border-color: #0d8a8a;
+    }
+
+    .modal-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .item-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0e2938;
+    }
+
+    .item-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 12px;
+      text-transform: uppercase;
+    }
+
+    .badge-open { background: #e0f2fe; color: #0284c7; }
+    .badge-resolved { background: #dcfce7; color: #15803d; }
+    .badge-pending { background: #fef3c7; color: #b45309; }
+
+    .item-desc {
+      font-size: 11px;
+      color: #64748b;
+      line-height: 1.4;
+    }
+
+    .item-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+      font-size: 10px;
+      color: #0d8a8a;
+      font-weight: 600;
+    }
+
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .toggle-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    /* Dashboard Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .profile-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      border: 1px solid #d0dfeb;
+      border-radius: 12px;
+      background-color: #ffffff;
+      color: #1e3a4c;
+      font-size: 18px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+
+    .profile-btn:hover {
+      background-color: #f4f8fb;
+      border-color: #0d8a8a;
+      color: #0d8a8a;
+    }
+
+    /* Hero Banner Card */
+    .hero-card {
+      background: linear-gradient(135deg, #e8f7f9 0%, #d8f3ee 100%);
+      border-radius: 16px;
+      padding: 22px 18px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+
+    .hero-text-content {
+      max-width: 60%;
+      z-index: 2;
+    }
+
+    .hero-tag {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      color: #128282;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .hero-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #0b2f38;
+      line-height: 1.25;
+      margin-bottom: 12px;
+      min-height: 55px;
+    }
+
+    .hero-desc {
+      font-size: 12px;
+      color: #4a6369;
+      line-height: 1.5;
+      margin-bottom: 16px;
+      min-height: 54px;
+    }
+
+    .hero-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #bce3df;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .dot.active {
+      background-color: #0d8a8a;
+      width: 16px;
+      border-radius: 4px;
+    }
+
+    .hero-graphic {
+      width: 130px;
+      height: 120px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero-illustration {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Standard Cards */
+    .card {
+      background-color: #ffffff;
+      border: 1px solid #eef4f8;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+      display: flex;
+      align-items: center;
+      text-align: left;
+      width: 100%;
+    }
+
+    .card-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background-color: #eef7fc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1d71b8;
+      font-size: 18px;
+      margin-right: 14px;
+      flex-shrink: 0;
+    }
+
+    .card-content {
+      flex: 1;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0e2938;
+      margin-bottom: 3px;
+    }
+
+    .card-desc {
+      font-size: 11px;
+      color: #698096;
+      line-height: 1.3;
+    }
+
+    .card-arrow {
+      color: #112a38;
+      font-size: 14px;
+      margin-left: 8px;
+    }
+
+    /* Categories Card */
+    .categories-card {
+      background-color: #ffffff;
+      border: 1px solid #eef4f8;
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .categories-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    .cat-btn {
+      height: 48px;
+      background-color: #f2f7fc;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #2b6fa8;
+      font-size: 14px;
+      gap: 2px;
+    }
+
+    .cat-btn.active {
+      background-color: #0d8a8a;
+      color: #ffffff;
+    }
+
+    .cat-btn span {
+      font-size: 8px;
+      font-weight: 700;
+    }
+
+    /* Two Column Grid */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .grid-2 .card {
+      padding: 14px 12px;
+    }
+
+    .grid-2 .card-icon-box {
+      width: 36px;
+      height: 36px;
+      font-size: 15px;
+      margin-right: 8px;
+      border-radius: 10px;
+    }
+
+    .grid-2 .card-title {
+      font-size: 13px;
+    }
+
+    .grid-2 .card-desc {
+      font-size: 10px;
+    }
+
+    /* About Section */
+    .about-section {
+      background-color: #f8fafc;
+      border: 1px solid #eef4f8;
+      border-radius: 16px;
+      padding: 20px 16px;
+      display: grid;
+      grid-template-columns: 1.1fr 1.2fr;
+      gap: 16px;
+    }
+
+    .about-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .about-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .about-leaf {
+      color: #0d8a8a;
+      font-size: 18px;
+    }
+
+    .about-header h3 {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0e2938;
+    }
+
+    .about-desc {
+      font-size: 11px;
+      color: #698096;
+      line-height: 1.45;
+      margin-bottom: 12px;
+    }
+
+    .about-sub {
+      font-size: 11px;
+      color: #a0aec0;
+      font-weight: 500;
+    }
+
+    .about-right {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .about-items-top {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .about-items-bottom {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      padding-left: 10px;
+    }
+
+    .about-item {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .about-icon-box {
+      width: 32px;
+      height: 32px;
+      background-color: #e0f2fe;
+      color: #0284c7;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .about-item h4 {
+      font-size: 10px;
+      font-weight: 700;
+      color: #0e2938;
+      margin-bottom: 2px;
+    }
+
+    .about-item p {
+      font-size: 8px;
+      color: #718096;
+      line-height: 1.25;
+    }
+
+    /* Profile Sliding Panel Drawer */
+    .profile-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.35);
+      z-index: 500;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      border-radius: 16px;
+    }
+
+    .profile-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .profile-drawer {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 82%;
+      height: 100%;
+      background-color: #ffffff;
+      z-index: 501;
+      box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      border-top-right-radius: 16px;
+      border-bottom-right-radius: 16px;
+    }
+
+    .profile-drawer.active {
+      transform: translateX(0);
+    }
+
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 16px;
+      border-bottom: 1px solid #f0f4f8;
+    }
+
+    .drawer-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0e2938;
+    }
+
+    .btn-close-drawer {
+      font-size: 18px;
+      color: #687e8d;
+      padding: 4px;
+    }
+
+    .drawer-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .user-profile-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 16px;
+      background: linear-gradient(135deg, #e8f7f9 0%, #d8f3ee 100%);
+      border-radius: 16px;
+    }
+
+    .user-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: #0d8a8a;
+      color: #ffffff;
+      font-size: 24px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+      box-shadow: 0 4px 10px rgba(13, 138, 138, 0.25);
+      text-transform: uppercase;
+    }
+
+    .user-email-text {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0e2938;
+      word-break: break-all;
+    }
+
+    .drawer-section-title {
+      font-size: 10px;
+      font-weight: 800;
+      color: #8fa3b0;
+      letter-spacing: 0.8px;
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    .drawer-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .drawer-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background-color: #f8fafc;
+      color: #2b3940;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: left;
+      width: 100%;
+      transition: background-color 0.2s ease;
+    }
+
+    .drawer-item-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .drawer-item:hover {
+      background-color: #eef7fc;
+    }
+
+    .drawer-item i.menu-icon {
+      font-size: 14px;
+      color: #0d8a8a;
+      width: 18px;
+      text-align: center;
+    }
+
+    .drawer-item i.chevron-icon {
+      font-size: 11px;
+      color: #a0aec0;
+    }
+
+    .drawer-item.logout-item {
+      margin-top: auto;
+      background-color: #fef2f2;
+      color: #dc2626;
+    }
+
+    .drawer-item.logout-item i.menu-icon {
+      color: #dc2626;
+    }
+
+    .comment-item {
+      background: #f1f5f9;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .comment-author {
+      font-weight: 700;
+      color: #0d8a8a;
+      margin-bottom: 2px;
+    }
+
+    .comment-time {
+      font-size: 9px;
+      color: #94a3b8;
+      float: right;
+    }
+
+    .locality-box {
+      background: #eef7fc;
+      border: 1px solid #cce5ff;
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container" id="app-container">
+
+    <!-- 1. LOGIN SCREEN -->
+    <div class="screen active" id="screen-login">
+      <div class="login-header">
+        <svg class="brand-logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M30 40C30 25 45 25 50 35C55 25 70 25 70 40C70 55 50 70 50 70C50 70 30 55 30 40Z" stroke="#0d8a8a" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M20 50H35M65 50H80M50 20V35" stroke="#0d8a8a" stroke-width="8" stroke-linecap="round"/>
+        </svg>
+        <div class="brand-title">UPCHAR</div>
+        <div class="brand-subtitle">Making support feel effortless</div>
+      </div>
+
+      <div class="login-box">
+        <div class="form-group">
+          <label for="email-input">Email Address</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-envelope"></i>
+            <input type="email" id="email-input" placeholder="Enter your email" value="">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password-input">Password</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="password-input" placeholder="Enter your password" value="">
+          </div>
+        </div>
+
+        <button class="btn-primary" id="btn-login">Login</button>
+        
+        <div class="signup-text-wrapper">
+          Don't have an account? <span class="signup-link" id="open-signup-modal">Sign Up</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. DASHBOARD SCREEN -->
+    <div class="screen" id="screen-dashboard">
+      <header class="header">
+        <div class="brand">
+          <svg class="brand-logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M30 40C30 25 45 25 50 35C55 25 70 25 70 40C70 55 50 70 50 70C50 70 30 55 30 40Z" stroke="#0d8a8a" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M20 50H35M65 50H80M50 20V35" stroke="#0d8a8a" stroke-width="8" stroke-linecap="round"/>
+          </svg>
+          <div>
+            <div class="brand-title">UPCHAR</div>
+            <div class="brand-subtitle">Making support feel effortless</div>
+          </div>
+        </div>
+        
+        <button class="profile-btn" id="btn-open-profile" aria-label="Open Menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </header>
+
+      <!-- Hero Banner Card -->
+      <div class="hero-card" id="hero-slider">
+        <div class="hero-text-content">
+          <div class="hero-tag" id="hero-tag">YOUR QUESTIONS. OUR SUPPORT.</div>
+          <div class="hero-title" id="hero-title">Post a query.<br>Get real help.</div>
+          <div class="hero-desc" id="hero-desc">
+            Upchar is a community-driven platform where you can ask questions, get expert and public support, and find solutions — all in one place.
+          </div>
+          <div class="hero-dots">
+            <div class="dot active" data-slide="0"></div>
+            <div class="dot" data-slide="1"></div>
+            <div class="dot" data-slide="2"></div>
+          </div>
+        </div>
+
+        <div class="hero-graphic">
+          <svg class="hero-illustration" viewBox="0 0 140 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="90" cy="65" rx="45" ry="40" fill="#E1F2F7" opacity="0.7"/>
+            <ellipse cx="105" cy="55" rx="30" ry="30" fill="#D2EEF5" opacity="0.8"/>
+            <rect x="25" y="15" width="55" height="36" rx="12" fill="#D3EDF8"/>
+            <path d="M40 51L32 58V51H40Z" fill="#D3EDF8"/>
+            <circle cx="40" cy="33" r="3" fill="#60A5FA"/>
+            <circle cx="52.5" cy="33" r="3" fill="#60A5FA"/>
+            <circle cx="65" cy="33" r="3" fill="#60A5FA"/>
+            <path d="M80 85C80 97 120 97 120 85H80Z" fill="#3B82F6"/>
+            <path d="M100 85V65" stroke="#34D399" stroke-width="3" stroke-linecap="round"/>
+            <path d="M100 70C100 60 115 55 115 65C108 68 100 70 100 70Z" fill="#34D399"/>
+            <path d="M100 73C100 65 88 60 88 70C94 72 100 73 100 73Z" fill="#34D399"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Post a Query Card -->
+      <button class="card card-btn" id="btn-post-query">
+        <div class="card-icon-box"><i class="fa-regular fa-comment"></i></div>
+        <div class="card-content">
+          <div class="card-title">Post a Query</div>
+          <div class="card-desc">Share your problem or question with the community.</div>
+        </div>
+        <i class="fa-solid fa-arrow-right card-arrow"></i>
+      </button>
+
+      <!-- Categories Card -->
+      <div class="categories-card">
+        <div class="categories-header">
+          <div class="card-icon-box"><i class="fa-solid fa-table-cells-large"></i></div>
+          <div class="card-content">
+            <div class="card-title">Categories</div>
+            <div class="card-desc">Explore topics and find what you're looking for.</div>
+          </div>
+        </div>
+        <div class="category-grid">
+          <button class="cat-btn active" data-cat="All"><i class="fa-solid fa-border-all"></i><span>All</span></button>
+          <button class="cat-btn" data-cat="Civic"><i class="fa-solid fa-city"></i><span>Civic</span></button>
+          <button class="cat-btn" data-cat="Medical"><i class="fa-solid fa-notes-medical"></i><span>Medical</span></button>
+          <button class="cat-btn" data-cat="Utility"><i class="fa-solid fa-bolt"></i><span>Utility</span></button>
+          <button class="cat-btn" data-cat="Telecom"><i class="fa-solid fa-wifi"></i><span>Telecom</span></button>
+        </div>
+      </div>
+
+      <!-- Two Column Grid -->
+      <div class="grid-2">
+        <button class="card card-btn" id="btn-dashboard-locality">
+          <div class="card-icon-box"><i class="fa-solid fa-location-dot"></i></div>
+          <div class="card-content">
+            <div class="card-title">My Locality</div>
+            <div class="card-desc" id="dash-locality-text">Patna, Bihar</div>
+          </div>
+          <i class="fa-solid fa-arrow-right card-arrow"></i>
+        </button>
+
+        <button class="card card-btn" id="btn-dashboard-recent">
+          <div class="card-icon-box"><i class="fa-regular fa-clock"></i></div>
+          <div class="card-content">
+            <div class="card-title">Recent Activities</div>
+            <div class="card-desc">Citizen queries & community activity.</div>
+          </div>
+          <i class="fa-solid fa-arrow-right card-arrow"></i>
+        </button>
+      </div>
+
+      <!-- My Activities Card -->
+      <button class="card card-btn" id="btn-dashboard-activities">
+        <div class="card-icon-box"><i class="fa-regular fa-user"></i></div>
+        <div class="card-content">
+          <div class="card-title">My Activities</div>
+          <div class="card-desc">Track your queries, responses and progress.</div>
+        </div>
+        <i class="fa-solid fa-arrow-right card-arrow"></i>
+      </button>
+
+      <!-- About Section -->
+      <div class="about-section">
+        <div class="about-left">
+          <div>
+            <div class="about-header">
+              <i class="fa-solid fa-leaf about-leaf"></i>
+              <h3>About Upchar</h3>
+            </div>
+            <p class="about-desc">
+              A universal platform for all types of complaints and problems faced by everyone. Get expert and public support, with AI-powered solutions — all in one place.
+            </p>
+          </div>
+          <div class="about-sub">Simple &nbsp;&bull;&nbsp; Secure &nbsp;&bull;&nbsp; For Everyone</div>
+        </div>
+
+        <div class="about-right">
+          <div class="about-items-top">
+            <div class="about-item">
+              <div class="about-icon-box"><i class="fa-solid fa-users"></i></div>
+              <h4>For Everyone</h4>
+              <p>Designed for all types of people, across India.</p>
+            </div>
+            <div class="about-item">
+              <div class="about-icon-box"><i class="fa-solid fa-shield"></i></div>
+              <h4>Privacy First</h4>
+              <p>Your data and queries are always protected.</p>
+            </div>
+            <div class="about-item">
+              <div class="about-icon-box"><i class="fa-solid fa-brain"></i></div>
+              <h4>AI Integrated</h4>
+              <p>Get smart, relevant and personalized suggestions.</p>
+            </div>
+          </div>
+
+          <div class="about-items-bottom">
+            <div class="about-item">
+              <div class="about-icon-box"><i class="fa-solid fa-headset"></i></div>
+              <h4>24/7 Support</h4>
+              <p>Help whenever you need it.</p>
+            </div>
+            <div class="about-item">
+              <div class="about-icon-box"><i class="fa-solid fa-circle-check"></i></div>
+              <h4>Safe & Secure</h4>
+              <p>Built with your safety and trust in mind.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 3. SLIDING RIGHT PROFILE PANEL -->
+    <div class="profile-overlay" id="profile-overlay"></div>
+    <div class="profile-drawer" id="profile-drawer">
+      <div class="drawer-header">
+        <div class="drawer-title">Account</div>
+        <button class="btn-close-drawer" id="btn-close-profile"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="drawer-body">
+        <div class="user-profile-card">
+          <div class="user-avatar" id="drawer-avatar">U</div>
+          <div class="user-email-text" id="drawer-email">user@upchar.com</div>
+        </div>
+
+        <div class="drawer-section-title">MY ACTIVITY</div>
+        <div class="drawer-menu">
+          <button class="drawer-item" id="menu-queries">
+            <div class="drawer-item-left">
+              <i class="fa-solid fa-clipboard-list menu-icon"></i>
+              <span>My Queries</span>
+            </div>
+            <i class="fa-solid fa-chevron-right chevron-icon"></i>
+          </button>
+
+          <button class="drawer-item" id="menu-saved">
+            <div class="drawer-item-left">
+              <i class="fa-regular fa-bookmark menu-icon"></i>
+              <span>Saved Posts</span>
+            </div>
+            <i class="fa-solid fa-chevron-right chevron-icon"></i>
+          </button>
+
+          <button class="drawer-item" id="menu-drafts">
+            <div class="drawer-item-left">
+              <i class="fa-regular fa-pen-to-square menu-icon"></i>
+              <span>Drafts</span>
+            </div>
+            <i class="fa-solid fa-chevron-right chevron-icon"></i>
+          </button>
+        </div>
+
+        <div class="drawer-section-title">PREFERENCES & SETTINGS</div>
+        <div class="drawer-menu">
+          <button class="drawer-item" id="menu-location">
+            <div class="drawer-item-left">
+              <i class="fa-solid fa-location-dot menu-icon"></i>
+              <span>Locality Settings</span>
+            </div>
+            <i class="fa-solid fa-chevron-right chevron-icon"></i>
+          </button>
+
+          <button class="drawer-item" id="menu-notifications">
+            <div class="drawer-item-left">
+              <i class="fa-regular fa-bell menu-icon"></i>
+              <span>Notifications</span>
+            </div>
+            <i class="fa-solid fa-chevron-right chevron-icon"></i>
+          </button>
+
+          <button class="drawer-item" id="menu-language">
+            <div class="drawer-item-left">
+              <i class="fa-solid fa-language menu-icon"></i>
+              <span>Language</span>
+            </div>
+            <i class="fa-solid fa-chevron-right chevron-icon"></i>
+          </button>
+
+          <button class="drawer-item" id="menu-security">
+            <div class="drawer-item-left">
+              <i class="fa-solid fa-shield-halved menu-icon"></i>
+              <span>Security & Password</span>
+            </div>
+            <i class="fa-solid fa-chevron-right chevron-icon"></i>
+          </button>
+        </div>
+
+        <div class="drawer-section-title">HELP & SUPPORT</div>
+        <div class="drawer-menu">
+          <button class="drawer-item" id="menu-help">
+            <div class="drawer-item-left">
+              <i class="fa-regular fa-circle-question menu-icon"></i>
+              <span>Help Center & FAQs</span>
+            </div>
+            <i class="fa-solid fa-chevron-right chevron-icon"></i>
+          </button>
+
+          <button class="drawer-item" id="menu-support">
+            <div class="drawer-item-left">
+              <i class="fa-solid fa-headset menu-icon"></i>
+              <span>Report an Issue</span>
+            </div>
+            <i class="fa-solid fa-chevron-right chevron-icon"></i>
+          </button>
+        </div>
+
+        <button class="drawer-item logout-item" id="btn-drawer-logout">
+          <div class="drawer-item-left">
+            <i class="fa-solid fa-right-from-bracket menu-icon"></i>
+            <span>Logout</span>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- FEATURE WINDOW MODALS (POPUPS) -->
+
+    <!-- Signup Modal -->
+    <div class="modal-overlay" id="signup-modal">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title">Create Account</div>
+          <button class="btn-close-modal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <div class="input-wrapper" style="gap: 8px;">
+            <i class="fa-solid fa-envelope"></i>
+            <input type="email" id="signup-email" placeholder="Enter your email">
+            <button id="btn-request-otp" style="background: #0d8a8a; color: white; border-radius: 6px; padding: 6px 10px; font-size: 11px; font-weight: 700; white-space: nowrap;">Send OTP</button>
+          </div>
+        </div>
+        <div class="form-group" id="otp-group" style="display: none;">
+          <label>6-Digit Email OTP</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-shield-halved"></i>
+            <input type="text" id="signup-otp" placeholder="Enter 6-digit OTP" maxlength="6">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>New Password</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-key"></i>
+            <input type="password" id="signup-password" placeholder="New password (min 6 chars)">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Confirm Password</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-check-double"></i>
+            <input type="password" id="signup-confirm-password" placeholder="Confirm new password">
+          </div>
+        </div>
+        <button class="btn-primary" id="btn-submit-signup">Register & Verify OTP</button>
+      </div>
+    </div>
+
+    <!-- Post Dynamic Query Modal -->
+    <div class="modal-overlay" id="modal-post-query">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title"><i class="fa-regular fa-comment"></i> Post a Query</div>
+          <button class="btn-close-modal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-list"></i>
+            <select id="post-cat-select">
+              <option value="Civic">Civic Issue</option>
+              <option value="Medical">Medical Support</option>
+              <option value="Utility">Power / Utility</option>
+              <option value="Telecom">Telecom & Internet</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Title</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-heading"></i>
+            <input type="text" id="post-title-input" placeholder="Brief subject of query">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <div class="input-wrapper" style="padding: 8px;">
+            <textarea id="post-desc-input" rows="3" placeholder="Provide details about the issue..."></textarea>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-primary" id="btn-save-draft" style="background: #64748b;">Save Draft</button>
+          <button class="btn-primary" id="btn-submit-query">Submit Query</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1. My Queries Window -->
+    <div class="modal-overlay" id="modal-queries">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title"><i class="fa-solid fa-clipboard-list"></i> My Queries</div>
+          <button class="btn-close-modal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="queries-list-container" style="display: flex; flex-direction: column; gap: 10px;">
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Recent Activities Window -->
+    <div class="modal-overlay" id="modal-recent-activities">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title"><i class="fa-regular fa-clock"></i> Citizen Activities</div>
+          <button class="btn-close-modal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div style="font-size:11px; color:#64748b; margin-bottom: 4px;">Live feed of problems & queries posted by other citizens in your area.</div>
+        <div id="recent-activities-list" style="display: flex; flex-direction: column; gap: 10px;">
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. My Locality Input & Queries Window -->
+    <div class="modal-overlay" id="modal-locality-issues">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title" id="locality-modal-header-title"><i class="fa-solid fa-location-dot"></i> My Locality</div>
+          <button class="btn-close-modal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        
+        <!-- DIRECT LOCALITY INPUT SECTION -->
+        <div class="locality-box">
+          <div style="font-size:11px; color:#0d8a8a; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">Enter Your Locality Details</div>
+          <div class="form-group">
+            <div class="input-wrapper">
+              <i class="fa-solid fa-city"></i>
+              <input type="text" id="locality-city-input" placeholder="City or Area Name (e.g. Patna, Bihar)" value="Patna, Bihar">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="input-wrapper">
+              <i class="fa-solid fa-map-pin"></i>
+              <input type="text" id="locality-pincode-input" placeholder="Pincode (e.g. 800001)" value="800001">
+            </div>
+          </div>
+          <button class="btn-primary" id="btn-update-locality-direct" style="padding: 10px; font-size: 13px; margin-top: 0;">Update Locality & Load Queries</button>
+        </div>
+
+        <div style="font-size:13px; font-weight:700; color:#0e2938; margin-top:6px;">Area Queries & Reported Issues</div>
+        <div id="locality-issues-list" style="display: flex; flex-direction: column; gap: 10px;">
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Saved Posts Window -->
+    <div class="modal-overlay" id="modal-saved">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title"><i class="fa-solid fa-bookmark"></i> Saved Posts</div>
+          <button class="btn-close-modal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="saved-list-container" style="display: flex; flex-direction: column; gap: 10px;">
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Drafts Window -->
+    <div class="modal-overlay" id="modal-drafts">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title"><i class="fa-solid fa-pen-to-square"></i> My Drafts</div>
+          <button class="btn-close-modal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="drafts-list-container" style="display: flex; flex-direction: column; gap: 10px;">
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Query Detail Window -->
+    <div class="modal-overlay" id="modal-query-detail">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title" id="detail-title"><i class="fa-solid fa-file-lines"></i> Query Detail</div>
+          <button class="btn-close-modal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px;" id="detail-content-body">
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. Locality Settings Window -->
+    <div class="modal-overlay" id="modal-location">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title"><i class="fa-solid fa-location-dot"></i> Locality Settings</div>
+          <button class="btn-close-modal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="form-group">
+          <label>City / District</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-city"></i>
+            <input type="text" value="Patna, Bihar" id="input-city">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Pincode</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-map-pin"></i>
+            <input type="text" value="800001" id="input-pincode">
+          </div>
+        </div>
+        <button class="btn-primary" id="btn-save-locality">Save Locality</button>
+      </div>
+    </div>
+
+    <!-- 8. Notifications Window -->
+    <div class="modal-overlay" id="modal-notifications">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title"><i class="fa-solid fa-bell"></i> Notifications</div>
+          <button class="btn-close-modal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">Push Notifications</span>
+          <input type="checkbox" checked id="notif-push">
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">Email Query Updates</span>
+          <input type="checkbox" checked id="notif-email">
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">Community News Alerts</span>
+          <input type="checkbox" id="notif-news">
+        </div>
+        <button class="btn-primary" id="btn-save-notif">Save Preferences</button>
+      </div>
+    </div>
+
+    <!-- 9. Language Window -->
+    <div class="modal-overlay" id="modal-language">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title"><i class="fa-solid fa-language"></i> Language</div>
+          <button class="btn-close-modal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="form-group">
+          <label>Select App Language</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-globe"></i>
+            <select id="select-language">
+              <option value="English" selected>English</option>
+              <option value="Hindi">हिन्दी (Hindi)</option>
+              <option value="Bengali">বাংলা (Bengali)</option>
+              <option value="Marathi">मराठी (Marathi)</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-primary" id="btn-save-lang">Apply Preference</button>
+      </div>
+    </div>
+
+    <!-- 10. Security Window -->
+    <div class="modal-overlay" id="modal-security">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title"><i class="fa-solid fa-shield-halved"></i> Security</div>
+          <button class="btn-close-modal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="form-group">
+          <label>Current Password</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="sec-current-pass" placeholder="Current Password">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>New Password</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-key"></i>
+            <input type="password" id="sec-new-pass" placeholder="New Password">
+          </div>
+        </div>
+        <button class="btn-primary" id="btn-save-security">Update Password</button>
+      </div>
+    </div>
+
+    <!-- 11. Help Center Window -->
+    <div class="modal-overlay" id="modal-help">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title"><i class="fa-solid fa-circle-question"></i> Help & FAQs</div>
+          <button class="btn-close-modal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-item-card" onclick="alert('Help Article: Click on Post a Query from Dashboard to raise any concern.')">
+          <span class="item-title">How do I post a query?</span>
+          <p class="item-desc">Tap "Post a Query" on the dashboard, write your issue details, and submit.</p>
+        </div>
+        <div class="modal-item-card" onclick="alert('Help Article: Local support agents and AI verify solutions rapidly.')">
+          <span class="item-title">How long does resolution take?</span>
+          <p class="item-desc">Usually responses begin appearing within minutes from officials or community experts.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 12. Report an Issue Window -->
+    <div class="modal-overlay" id="modal-support">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title"><i class="fa-solid fa-headset"></i> Report an Issue</div>
+          <button class="btn-close-modal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="form-group">
+          <label>Describe the Bug or Issue</label>
+          <div class="input-wrapper" style="padding: 8px;">
+            <textarea id="report-text" rows="3" placeholder="Tell us what went wrong..."></textarea>
+          </div>
+        </div>
+        <button class="btn-primary" id="btn-submit-report">Submit Report</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
